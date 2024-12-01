@@ -1,0 +1,11 @@
+
+
+/backend/*.log
+/backend/*.pot
+/backend/*.pyc
+/backend/__pycache__/
+/backend/db.sqlite3
+/backend/media/
+
+/backend/venv/
+/backend/.env/
