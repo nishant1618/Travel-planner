@@ -2,6 +2,9 @@ import requests
 from math import radians, sin, cos, sqrt, atan2
 from django.conf import settings
 
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+
 def haversine_distance(lat1, lon1, lat2, lon2):
     """Calculate the great circle distance between two points in kilometers."""
     R = 6371  # Earth's radius in kilometers
@@ -72,3 +75,22 @@ def find_shortest_path(places):
         total_distance += min_distance
     
     return path, total_distance
+def test_geopy_geocoding(place_name, state='Odisha'):
+    try:
+        geolocator = Nominatim(user_agent="travel_planner_app")
+        location = geolocator.geocode(f"{place_name}, {state}, India")
+        
+        if location:
+            print(f"Successful Geocoding:")
+            print(f"Place: {place_name}")
+            print(f"Latitude: {location.latitude}")
+            print(f"Longitude: {location.longitude}")
+            print(f"Raw Address: {location.address}")
+            return location
+        else:
+            print(f"Geocoding failed for {place_name}")
+            return None
+    
+    except (GeocoderTimedOut, GeocoderServiceError) as e:
+        print(f"Geocoding Error: {str(e)}")
+        return None

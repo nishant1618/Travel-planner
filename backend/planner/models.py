@@ -1,11 +1,18 @@
-# Create your models here.
 from django.db import models
+from django.utils import timezone
 
 class Place(models.Model):
     name = models.CharField(max_length=200)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     state = models.CharField(max_length=100)
+    address = models.TextField(null=True, blank=True)
+    geocoded_at = models.DateTimeField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.geocoded_at:
+            self.geocoded_at = timezone.now()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.name

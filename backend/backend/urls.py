@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from planner.views import PlaceViewSet, RouteViewSet
+from planner import views
 
 # Create a router and register our viewsets with it
 router = DefaultRouter()

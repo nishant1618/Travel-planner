@@ -3,6 +3,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Place, Route, RoutePlace
 from .serializers import PlaceSerializer, RouteSerializer
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+import logging
+
+logger = logging.getLogger(__name__)
 
 class PlaceViewSet(viewsets.ModelViewSet):
     queryset = Place.objects.all()
@@ -14,6 +19,32 @@ class PlaceViewSet(viewsets.ModelViewSet):
         if state:
             queryset = queryset.filter(state=state)
         return queryset
+    
+    @action(detail=False, methods=['get'])
+    def geocode(self, request):
+        place_name = request.query_params.get('place', '')
+        state = request.query_params.get('state', 'Odisha')
+        
+        if not place_name:
+            return Response({'error': 'Place name is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            geolocator = Nominatim(user_agent="travel_planner_app")
+            location = geolocator.geocode(f"{place_name}, {state}, India")
+            
+            if location:
+                return Response({
+                    'name': place_name,
+                    'latitude': location.latitude,
+                    'longitude': location.longitude,
+                    'state': state
+                })
+            else:
+                return Response({'error': 'Place not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            logger.error(f"Geocoding error: {str(e)}")
+            return Response({'error': 'Geocoding service error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
