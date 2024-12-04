@@ -66,3 +66,8 @@
 - Update the settings.py file in django
 - Create a account in openrouteservice api.
 - Create a .env file using the .envexample file
+
+## Example usage in Django shell or test script
+    python manage.py shell
+    >>> from your_app.utils import test_geopy_geocoding
+    >>> test_geopy_geocoding('Bhubaneswar')
